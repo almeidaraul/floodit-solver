@@ -24,6 +24,39 @@ struct state {
   state (int n, int m) {
     b.resize(n, vector<bool>(m, false));
   }
+  int h(int k, vector<vector<int>> &board) {
+    int n = board.size(), m = board[0].size();
+    pair<int, int> best = make_pair(-1, -1);
+    for (int i = 0; i < k; ++i) {
+      int v = 0;
+      queue<pair<int, int>> q;
+      q.push(make_pair(0, 0));
+      vector<pair<int, int>> undo;
+      while (!q.empty()) {
+        pair<int, int> t = q.front(); q.pop();
+        for (int x = -1; x < 2; ++x)
+        for (int y = -1; y < 2; ++y)
+          if ((x != 0 || y != 0)
+              && t.first+x >= 0
+              && t.first+x < n
+              && t.second+y >= 0
+              && t.second+y < m
+              && !b[t.first+x][t.second+y]
+              && board[t.first+x][t.second+y] == i+1) {
+                v++;
+                b[t.first+x][t.second+y] = true;
+                undo.push_back(make_pair(t.first+x, t.second+y));
+                q.push(make_pair(t.first+x, t.second+y));
+              }
+      }
+      for (auto p: undo)
+        b[p.first][p.second] = false;
+      if (v > best.second)
+        best = make_pair(k, v);
+    }
+    return best.first;
+}
+
 };
 
 int main() {
@@ -63,4 +96,5 @@ int main() {
     cout << "W\n";
   else
     cout << "L\n";
+  cout << s0.h(k, b) << '\n';
 }
