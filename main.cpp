@@ -6,56 +6,100 @@ using namespace std;
 
 struct state {
   vector<vector<bool>> b;
+  vector<vector<int>> board;
+  int n, m, k;
   vector<int> history;
   int color;
+
+  void solve() {
+    do {
+      history.push_back(h());
+      bfs(0, 0, history.back());
+      //print();
+    } while (!win());
+  }
+
+  void printsolution() {
+    cout << history.size() << endl;
+    for (auto x: history)
+      cout << x << ' ';
+    cout << endl;
+  }
+
+  void print() {
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j < m; ++j)
+        cout << b[i][j] << ' ';
+      cout << endl;
+    }
+    cout << endl;
+    cout << endl;
+  }
+  
   bool win() {
     for (auto x: b)
     for (auto y: x)
       if (!y) return false;
     return true;
   }
-  bool get(int i, int j) {
-    return b[i][j];
-  }
-  bool set(int i, int j, bool v) {
-    return b[i][j] = v;
-  }
+
   state () {}
-  state (int n, int m) {
+
+  state (int n, int m, int k, vector<vector<int>> board) {
+    this->n = n;
+    this->m = m;
+    this->k = k;
+    this->board = board;
     b.resize(n, vector<bool>(m, false));
+    init();
   }
-  int h(int k, vector<vector<int>> &board) {
+
+  void init() {
+    b[0][0] = true;
+    bfs(0, 0, board[0][0]);
+  }
+
+  vector<pair<int, int>> bfs(int sx, int sy, int c) {
+    queue<pair<int, int>> q;
+    q.push(make_pair(sx, sy));
+    vector<pair<int, int>> path;
+    vector<vector<bool>> visited(n, vector<bool>(m, false));
+    visited[0][0] = true;
+    while (!q.empty()) {
+      pair<int, int> t = q.front(); q.pop();
+      for (int x = 0; x < 2; ++x)
+      for (int y = -1; y < 2; ++y) {
+        int l, r;
+        l = t.first+x*y;
+        r = t.second+(1-x)*y;
+        if (y != 0 && l >= 0 && l < n && r >= 0 && r < m
+            && !visited[l][r]
+            && (b[l][r] || !b[l][r] && board[l][r] == c)) {
+              //cout << "mano seguinte " << l << " e "  << r << " pra cor " << c << " fds mas tipo " << b[l][r] << endl;
+              visited[l][r] = true;
+              if (!b[l][r])
+                path.push_back(make_pair(l, r));
+              b[l][r] = true;
+              q.push(make_pair(l, r));
+            }
+      }
+    }
+    return path;
+  }
+
+  int h() {
     int n = board.size(), m = board[0].size();
     pair<int, int> best = make_pair(-1, -1);
     for (int i = 0; i < k; ++i) {
-      int v = 0;
-      queue<pair<int, int>> q;
-      q.push(make_pair(0, 0));
-      vector<pair<int, int>> undo;
-      while (!q.empty()) {
-        pair<int, int> t = q.front(); q.pop();
-        for (int x = -1; x < 2; ++x)
-        for (int y = -1; y < 2; ++y)
-          if ((x != 0 || y != 0)
-              && t.first+x >= 0
-              && t.first+x < n
-              && t.second+y >= 0
-              && t.second+y < m
-              && !b[t.first+x][t.second+y]
-              && board[t.first+x][t.second+y] == i+1) {
-                v++;
-                b[t.first+x][t.second+y] = true;
-                undo.push_back(make_pair(t.first+x, t.second+y));
-                q.push(make_pair(t.first+x, t.second+y));
-              }
+      vector<pair<int, int>> path = bfs(0, 0, i+1);
+      if ((int)path.size() > best.second) {
+        best = make_pair(i+1, path.size());
       }
-      for (auto p: undo)
+      for (auto p: path)
         b[p.first][p.second] = false;
-      if (v > best.second)
-        best = make_pair(k, v);
     }
     return best.first;
-}
+  }
 
 };
 
@@ -67,34 +111,8 @@ int main() {
   for (int j = 0; j < m; ++j)
     cin >> b[i][j];
   //criando state inicial com bfs
-  state s0(n, m);
-  queue<pair<int, int>> q;
-  q.push(make_pair(0, 0));
-  s0.set(0, 0, true);
-  while (!q.empty()) {
-    pair<int, int> p = q.front(); q.pop();
-    int color = b[p.first][p.second];
-    for (int i = -1; i < 2; ++i)
-    for (int j = -1; j < 2; ++j)
-      if ((i != 0 || j != 0)
-          && p.first+i >= 0
-          && p.second+j >= 0
-          && p.first+i < n
-          && p.second+j < m
-          && !s0.get(p.first+i, p.second+j)
-          && b[p.first+i][p.second+j] == color) {
-        s0.set(p.first+i, p.second+j, true);
-        q.push(make_pair(p.first+i, p.second+j));
-      }
-  }
-  for (int i = 0; i < n; ++i) {
-    for (int j = 0; j < m; ++j)
-      cout << s0.get(i, j) << ' ';
-    cout << endl;
-  }
-  if (s0.win())
-    cout << "W\n";
-  else
-    cout << "L\n";
-  cout << s0.h(k, b) << '\n';
+  state s0(n, m, k, b);
+  s0.init();
+  s0.solve();
+  s0.printsolution();
 }
