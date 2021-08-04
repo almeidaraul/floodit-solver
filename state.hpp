@@ -11,6 +11,7 @@ struct state {
   int color;
 
   void solve();
+	void walk();
   void printsolution();
   void print();
   bool win();

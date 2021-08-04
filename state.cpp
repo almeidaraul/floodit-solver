@@ -3,10 +3,14 @@ using namespace std;
 
 void state::solve() {
 	do {
-		history.push_back(h());
-		bfs(0, 0, history.back());
-		//print();
+		walk();
 	} while (!win());
+}
+
+void state::walk() {
+	history.push_back(h());
+	bfs(0, 0, history.back());
+	//print();
 }
 
 void state::printsolution() {
