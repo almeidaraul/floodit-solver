@@ -33,13 +33,7 @@ bool state::win() {
 	return true;
 }
 
-state::state () {}
-
-state::state (int n, int m, int k, vector<vector<int>> board) {
-	this->n = n;
-	this->m = m;
-	this->k = k;
-	this->board = board;
+state::state (int n, int m, int k, vector<vector<int>> &board) : n(n), m(m), k(k), board(board) {
 	b.resize(n, vector<bool>(m, false));
 	init();
 }
