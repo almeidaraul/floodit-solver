@@ -9,15 +9,7 @@ struct state {
   vector<vector<int>> board;
   int n, m, k;
   vector<int> history;
-  int color;
-
-  void solve() {
-    do {
-      history.push_back(h());
-      bfs(0, 0, history.back());
-      //print();
-    } while (!win());
-  }
+  int color, covered;
 
   void printsolution() {
     cout << history.size() << endl;
@@ -25,6 +17,48 @@ struct state {
       cout << x << ' ';
     cout << endl;
   }
+
+	void solve() {
+		do {
+			history.push_back(h());
+			bfs(0, 0, history.back());
+			//print();
+		} while (!win());
+	}
+
+	vector<int> h(int min_diff, int max_steps) { //TODO nova funcao
+		/* min_diff: menor diferença entre pior e melhor p/ parar
+		 * max_steps: maior profundidade antes de parar
+		 */
+		queue<pair<state, int>> q; //state, level (how deep it is)
+		state best, worst;
+		best.covered = -1;
+		worst.covered = n*m*k*100;
+		for (int i = 0; i < k; ++i) {
+			state s = state(n, m, k);
+			q.push(i);
+		}
+		while (!q.empty()) { //TODO seguir só os melhores
+			/*
+			 * pega o estado que tem na fila
+			 * ve quantos ele cobre
+			 * atualiza variaveis best e worst
+			 * verifica o nivel vs max_steps
+			 * verifica diferença best vs worst vs min_diff
+			 * enfileira os proximos
+			 */
+			pair<state, int> p = q.top(); q.pop();
+			int covers = p.first.covered;
+			if (covers > best.covered)
+				best = p.first;
+			if (covers < worst.covered)
+				worst = p.first;
+			if (p.second >= max_steps)
+				return best.history;
+			for (int i = 0; i < k; ++i)
+				q.push(
+		}
+	}
 
   void print() {
     for (int i = 0; i < n; ++i) {
@@ -75,7 +109,6 @@ struct state {
         if (y != 0 && l >= 0 && l < n && r >= 0 && r < m
             && !visited[l][r]
             && (b[l][r] || !b[l][r] && board[l][r] == c)) {
-              //cout << "mano seguinte " << l << " e "  << r << " pra cor " << c << " fds mas tipo " << b[l][r] << endl;
               visited[l][r] = true;
               if (!b[l][r])
                 path.push_back(make_pair(l, r));
@@ -84,6 +117,7 @@ struct state {
             }
       }
     }
+		covered += path.size();
     return path;
   }
 
@@ -97,11 +131,19 @@ struct state {
       }
       for (auto p: path)
         b[p.first][p.second] = false;
+			covered -= path.size();
     }
     return best.first;
   }
 
 };
+
+/*
+ * estado ve algumas jogadas à frente com uma bfs
+	 * inicialmente ve só 1 msm
+ * vê qual é a melhor escolha de jogadas a seguir
+ * mais rapido do que fazer uma bfs pra preencher a matriz de boolean: cada jogada no resultado já guarda a matriz resultado
+ */
 
 int main() {
   int n, m, k;
