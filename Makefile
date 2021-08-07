@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Wall -O2
+CFLAGS = -Wall -O3
 OBJ = main.o state.o
 DEPS = state.hpp
 all: main
@@ -14,8 +14,8 @@ exec: main
 	./main < teste.in
 
 fabiano: main
-	time ./main < fabiano/in1.txt
-	./main < fabiano/in1.txt > saida.txt
+	time ./main < entradas/in1.txt
+	./main < entradas/in1.txt > entradas/saida.txt
 
 clean:
 	@rm -f *.o
