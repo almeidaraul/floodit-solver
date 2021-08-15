@@ -1,0 +1,127 @@
+# Floodit Solver
+Raul Gomes Pimentel de Almeida (rgpa18 - GRR20182544)
+Trabalho 1 da disciplina de Inteligência Artificial, ERE3, UFPR - 2021
+
+
+Este arquivo serve como breve apresentação deste trabalho. Seu objetivo
+é resolver uma instância do jogo flood-it.
+
+Também são apresentadas duas ideias que não puderam ser experimentadas
+em tempo hábil para a entrega do trabalho.
+
+
+# Abordagem
+A abordagem tomada neste desenvolvimento foi um algoritmo guloso: para
+um determinado estado do tabuleiro, observa-se qual escolha de cor
+trará maior aumento imediato para o grupo da célula superior esquerda
+(grupo principal) em área ou perímetro. A escolha entre expansão por
+área ou perímetro pode ser definida por linha de comando (ler Makefile
+e execução) ou ser definida por padrão como expansão por área.
+
+Exemplo 1: escolha por área
+Tomemos o estado abaixo para um tabuleiro do jogo:
+1 2 3
+1 1 2
+3 3 2
+Se pintarmos o grupo principal com a cor 2, aumentaremos a área em três
+quadrados, enquanto que com a cor 3 aumentarmos a área em dois. Por isso,
+na priorização por área, escolheria-se a cor 2.
+
+Exemplo 2: escolha por perímetro
+Tomando o mesmo estado do exemplo 1, se escolhermos a cor 2, o perímetro
+do grupo principal aumenta em 4, enquanto que na cor 3 aumenta em 2. 
+Na priorização por perímetro, novamente escolheria-se a cor 2.
+
+Exemplo 3: escolha por perímetro em casos particulares
+Em algumas situações, não há aumento no perímetro. Tomemos o estado
+abaixo como exemplo:
+1 1 1 1 1 1
+1 2 1 3 3 1
+1 1 1 1 1 1
+Se priorizarmos perímetro na expansão do grupo principal, qualquer opção
+de cor nos renderiza um valor inoportuno, porque neste estado estamos
+tratando de expansões "para dentro" - isto é, o preenchimento de
+buracos. Nestes casos, o algoritmo abandona a priorização por perímetro
+e recorre à priorização por área (escolhendo, no exemplo, a cor 3).
+
+Decisão de jogada
+Para um determinado estado, realiza-se, em cada cor, uma busca em largura
+(BFS) sobre o tabuleiro, marcando novos elementos que fariam parte do
+grupo principal se este fosse pintado com aquela cor. O evento que gerar
+maior aumento em área ou perímetro da região do grupo principal é o
+escolhido, e portanto sua cor é adicionada à solução e os novos elementos
+são adicionados ao grupo principal.
+
+Complexidade
+Assumindo n, m = dimensões do tabuleiro e k = número de cores:
+O algoritmo tem complexidade espacial na ordem O(nm), com uma constante
+favorável (ler a seção Detalhes de implementação). O tempo de decisão
+de uma jogada é O(knm), isto é, k vezes a execução de uma BFS. Por fim,
+o tempo total de execução é o(knm), já que não é possível chegar a fazer
+nm pinturas.
+
+
+# Detalhes de implementação
+O programa foi desenvolvido em C++, com as funções e definições que são
+relacionadas a estados definidas no arquivo state.cpp.
+
+Para a representação de um estado, as duas coisas mais importantes são
+as que representam o tabuleiro: uma referência a uma matriz de inteiros,
+que é o tabuleiro em si - com a cor apropriada em cada elemento - e uma
+matriz de booleanos, que indica quais elementos fazem parte do grupo
+principal.
+
+A vantagem desta representação de tabuleiro é a economia de memória.
+Como foi utilizado o contêiner vector<bool> do C++, só é utilizado
+um bit por elemento, algo de 32 a 64 vezes menor do que seria
+necessário numa matriz de inteiros em arquiteturas normais. Outra coisa
+é que, na avaliação de jogada, não é necessário de fato pintar os
+elementos no tabuleiro com a cópia de um inteiro, mas sim com a
+alteração de valores booleanos (que, com operadores bit a bit, também
+é mais rápida).
+
+
+# Makefile e execução
+A Makefile que acompanha este trabalho produz o executável `aquarela`
+sob o comando `make`. Este executável pode receber um ou nenhum parâmetro
+para sua execução, definindo a estratégia utilizada para exploração do
+tabuleiro. Com nenhum parâmetro, caímos no caso descrito em Abordagem,
+escolhendo sempre a cor de maior contribuição para a área do grupo
+principal. Se houver parâmetro, ele pode seguir um dos seguintes valores
+e comportamentos:
+
+* random: 	 a cada jogada escolhe aleatoriamente se escolherá a próxima
+						 cor por aumento em área ou perímetro;
+* switch: 	 a cada jogada alterna entre priorização por área e perímetro
+						 (isto é, escolhe um, depois outro, e em seguida o anterior);
+* area: 		 escolhe sempre por área (valor padrão);
+* perimeter: escolhe sempre por perímetro;
+* half:			 escolhe por perímetro até que o grupo principal ocupe pelo
+						 menos metade do tabuleiro, e então passa a escolher por
+						 área;
+* most:			 escolhe por perímetro até que o grupo principal ocupe pelo
+						 menos quatro quintos do tabuleiro, e então passa a escolher
+						 por área.
+
+O valor padrão (`area`) foi escolhido empiricamente. Vale ressaltar que
+para as estratégias `half` e `most` temos um comportamento de explore e
+exploit.
+
+
+# Futuros experimentos
+Duas outras abordagens foram imaginadas, mas não desenvolvidas. Estas
+são apresentadas agora.
+
+1: Busca em estados até certo nível ou vantagem
+A ideia aqui seria fazer uma BFS em estados até atingir certo nível
+de profundidade ou até que a diferença entre as quantidades de elementos
+nos grupos principais do melhor e segundo melhor estados observados
+fosse significativa. O intuito dessa abordagem seria evitar ótimos locais
+garantindo que a escolha do programa estivesse muito à frente de outras,
+isto é, não poderia ser superada por outros caminhos logo em seguida.
+
+2: Moda de modas
+Outra abordagem seria manter uma árvore de segmentos bidimensional sobre
+o tabuleiro que guardasse a moda de cor de um segmento, permitindo que se
+escolhesse sempre a cor mais comum em uma região de escopo variável
+(micro ou macro).
