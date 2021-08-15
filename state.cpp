@@ -35,7 +35,7 @@ void state::solve(string strategy="random") {
 										 (strategy == "most" && covered >= n*m*10/8) ||
 										 (strategy == "random" && rand()%2);
 		turn = !turn;
-		choice step = choose_color(pick_area);//pick_area ? choose_by_area() : choose_by_perimeter();
+		choice step = choose_color(pick_area);
 		apply(step);
 	} while (!win());
 }
@@ -93,6 +93,11 @@ vector<pair<int, int>> state::bfs(int sx, int sy, int c) {
 }
 
 choice state::choose_color(bool area_first) {
+	/* 
+	 * run a BFS for each color and choose the one with the
+	 * biggest score to either area or perimeter (or area
+	 * if there's no increase in perimeter)
+	 */
 	choice best = choice(-1, vector<pair<int, int>>());
 	for (int i = 0; i < k; ++i) {
 		if ((history.size() && i+1 == history.back()) || (!history.size() && i+1 == board[0][0])) continue;
@@ -108,63 +113,11 @@ choice state::choose_color(bool area_first) {
 		}
 		perimeter = max(0, perimeter);
 		bool best_yet = ((area_first || !best.perimeter) && path.size() > best.path.size())
-			|| !area_first && perimeter > best.perimeter;
+			|| (!area_first && perimeter > best.perimeter);
 		if (best_yet) {
 			best.color = i+1;
 			best.path = path;
 			best.perimeter = perimeter;
-		}
-		for (auto &[x, y]: path)
-			b[x][y] = false;
-	}
-	return best;
-}
-
-choice state::choose_by_area() {
-	/* 
-	 * run BFS for each color and choose the one with the
-	 * biggest contribution to the group's area
-	 */
-	choice best = choice(-1, vector<pair<int, int>>());
-	for (int i = 0; i < k; ++i) {
-		if ((history.size() && i+1 == history.back()) || (!history.size() && i+1 == board[0][0])) continue;
-		vector<pair<int, int>> path = bfs(0, 0, i+1);
-		if (path.size() > best.path.size()) {
-			best.color = i+1;
-			best.path = path;
-		}
-		for (auto &[x, y]: path)
-			b[x][y] = false;
-	}
-	return best;
-}
-
-choice state::choose_by_perimeter() {
-	/* 
-	 * run BFS for each color and choose the one with the
-	 * biggest contribution to the group's perimeter
-	 */
-	choice best = choice(-1, vector<pair<int, int>>());
-	for (int i = 0; i < k; ++i) {
-		if ((history.size() && i+1 == history.back()) || (!history.size() && i+1 == board[0][0])) continue;
-		vector<pair<int, int>> path = bfs(0, 0, i+1);
-		int perimeter = 0;
-		for (auto &[x, y]: path) {
-			perimeter += max(0,
-				(x == 0) + (y == 0) +
-				(x > 0 ? -2*b[x-1][y]+1 : 0) +
-				(x < n-1 ? -2*b[x+1][y]+1 : 0) +
-				(y > 0 ? -2*b[x][y-1]+1 : 0) +
-				(y < m-1 ? -2*b[x][y+1]+1 : 0) +
-				(x == n-1) + (y == m));
-		}
-		if (perimeter > best.perimeter)  {
-			best.color = i+1;
-			best.path = path;
-			best.perimeter = perimeter;
-		} else if (best.perimeter == 0 && path.size() > best.path.size()) {
-			best.color = i+1;
-			best.path = path;
 		}
 		for (auto &[x, y]: path)
 			b[x][y] = false;
