@@ -4,7 +4,7 @@ using namespace std;
 void state::solve() {
 	do {
 		history.push_back(h());
-		bfs(0, 0, history.back());
+		covered += bfs(0, 0, history.back()).size();
 		//print();
 	} while (!win());
 }
@@ -27,10 +27,13 @@ void state::print() {
 }
   
 bool state::win() {
+	/*
 	for (auto x: b)
 	for (auto y: x)
 		if (!y) return false;
 	return true;
+	*/
+	return covered == n*m;
 }
 
 state::state (int n, int m, int k, vector<vector<int>> &board) : n(n), m(m), k(k), board(board) {
@@ -40,7 +43,7 @@ state::state (int n, int m, int k, vector<vector<int>> &board) : n(n), m(m), k(k
 
 void state::init() {
 	b[0][0] = true;
-	bfs(0, 0, board[0][0]);
+	covered = bfs(0, 0, board[0][0]).size();
 }
 
 vector<pair<int, int>> state::bfs(int sx, int sy, int c) {
@@ -59,7 +62,6 @@ vector<pair<int, int>> state::bfs(int sx, int sy, int c) {
 			if (y != 0 && l >= 0 && l < n && r >= 0 && r < m
 					&& !visited[l][r]
 					&& (b[l][r] || !b[l][r] && board[l][r] == c)) {
-						//cout << "mano seguinte " << l << " e "  << r << " pra cor " << c << " fds mas tipo " << b[l][r] << endl;
 						visited[l][r] = true;
 						if (!b[l][r])
 							path.push_back(make_pair(l, r));

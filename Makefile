@@ -6,5 +6,6 @@ main: main.o state.o
 exec: main
 	time ./a.out < teste.in
 	time ./a.out < gigante.in
-clean:
-	@rm -f *.o
+test: main
+	time ./main < entradas/in1.txt
+	./main < entradas/in1.txt > entradas/saida.txt
