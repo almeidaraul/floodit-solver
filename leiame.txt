@@ -24,7 +24,7 @@ Tomemos o estado abaixo para um tabuleiro do jogo:
 1 1 2
 3 3 2
 Se pintarmos o grupo principal com a cor 2, aumentaremos a área em três
-quadrados, enquanto que com a cor 3 aumentarmos a área em dois. Por isso,
+quadrados, enquanto que com a cor 3 aumentaremos a área em dois. Por isso,
 na priorização por área, escolheria-se a cor 2.
 
 Exemplo 2: escolha por perímetro
@@ -65,11 +65,11 @@ nm pinturas.
 O programa foi desenvolvido em C++, com as funções e definições que são
 relacionadas a estados definidas no arquivo state.cpp.
 
-Para a representação de um estado, as duas coisas mais importantes são
-as que representam o tabuleiro: uma referência a uma matriz de inteiros,
-que é o tabuleiro em si - com a cor apropriada em cada elemento - e uma
-matriz de booleanos, que indica quais elementos fazem parte do grupo
-principal.
+Para a representação de um estado, é interessante destacar os dois
+atributos que representam o tabuleiro: uma referência a uma matriz de
+inteiros, que é o tabuleiro em si - com a cor apropriada em cada 
+elemento - e uma matriz de booleanos, que indica quais elementos 
+fazem parte do grupo principal.
 
 A vantagem desta representação de tabuleiro é a economia de memória.
 Como foi utilizado o contêiner vector<bool> do C++, só é utilizado
@@ -77,8 +77,8 @@ um bit por elemento, algo de 32 a 64 vezes menor do que seria
 necessário numa matriz de inteiros em arquiteturas normais. Outra coisa
 é que, na avaliação de jogada, não é necessário de fato pintar os
 elementos no tabuleiro com a cópia de um inteiro, mas sim com a
-alteração de valores booleanos (que, com operadores bit a bit, também
-é mais rápida).
+alteração de valores booleanos (que, com operadores bit a bit - que são
+utilizados internamente pelo C++ -, também é mais rápida).
 
 
 # Makefile e execução
@@ -105,7 +105,8 @@ e comportamentos:
 
 O valor padrão (`area`) foi escolhido empiricamente. Vale ressaltar que
 para as estratégias `half` e `most` temos um comportamento de explore e
-exploit.
+exploit bem definido, e para as estratégias `random` e `switch` temos
+este comportamento alternado.
 
 
 # Futuros experimentos
@@ -117,8 +118,9 @@ A ideia aqui seria fazer uma BFS em estados até atingir certo nível
 de profundidade ou até que a diferença entre as quantidades de elementos
 nos grupos principais do melhor e segundo melhor estados observados
 fosse significativa. O intuito dessa abordagem seria evitar ótimos locais
-garantindo que a escolha do programa estivesse muito à frente de outras,
-isto é, não poderia ser superada por outros caminhos logo em seguida.
+garantindo que a escolha do programa estivesse muito à frente de outras
+possibilidades observadas, isto é, não poderia ser superada por outros
+caminhos logo em seguida.
 
 2: Moda de modas
 Outra abordagem seria manter uma árvore de segmentos bidimensional sobre
