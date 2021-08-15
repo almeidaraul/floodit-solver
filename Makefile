@@ -1,11 +1,16 @@
-CFLAGS = -Wall -O3
+CFLAGS = -Wall -O3 -std=c++17
+TDIR=entradas
+TESTE=$(TDIR)/teste.in
+TESTE2=$(TDIR)/in1.txt
+TESTE3=$(TDIR)/100x100-20c.txt
 
 all: main
 main: main.o state.o
-	g++ main.cpp state.cpp $(CFLAGS)
+	g++ $(CFLAGS) -o aquarela main.cpp state.cpp
 exec: main
-	time ./a.out < teste.in
-	time ./a.out < gigante.in
+	time ./aquarela < $(TESTE)
 test: main
-	time ./main < entradas/in1.txt
-	./main < entradas/in1.txt > entradas/saida.txt
+	time ./aquarela < $(TESTE2)
+	./aquarela < $(TESTE2) > entradas/saida.txt
+big: main
+	time ./aquarela < $(TESTE3)

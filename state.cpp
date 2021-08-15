@@ -3,8 +3,13 @@ using namespace std;
 
 void state::solve() {
 	do {
-		history.push_back(h());
-		covered += bfs(0, 0, history.back()).size();
+		pair<int, vector<pair<int, int>>> step = h();
+		history.push_back(step.first);
+		//covered += bfs(0, 0, history.back()).size();
+		covered += step.second.size();
+		for (auto &[x, y]: step.second)
+			b[x][y] = true;
+		//cout << "covered: " << covered << endl;
 		//print();
 	} while (!win());
 }
@@ -27,12 +32,6 @@ void state::print() {
 }
   
 bool state::win() {
-	/*
-	for (auto x: b)
-	for (auto y: x)
-		if (!y) return false;
-	return true;
-	*/
 	return covered == n*m;
 }
 
@@ -43,7 +42,7 @@ state::state (int n, int m, int k, vector<vector<int>> &board) : n(n), m(m), k(k
 
 void state::init() {
 	b[0][0] = true;
-	covered = bfs(0, 0, board[0][0]).size();
+	covered = bfs(0, 0, board[0][0]).size() + 1;
 }
 
 vector<pair<int, int>> state::bfs(int sx, int sy, int c) {
@@ -61,7 +60,7 @@ vector<pair<int, int>> state::bfs(int sx, int sy, int c) {
 			r = t.second+(1-x)*y;
 			if (y != 0 && l >= 0 && l < n && r >= 0 && r < m
 					&& !visited[l][r]
-					&& (b[l][r] || !b[l][r] && board[l][r] == c)) {
+					&& (b[l][r] || (!b[l][r] && board[l][r] == c))) {
 						visited[l][r] = true;
 						if (!b[l][r])
 							path.push_back(make_pair(l, r));
@@ -73,16 +72,15 @@ vector<pair<int, int>> state::bfs(int sx, int sy, int c) {
 	return path;
 }
 
-int state::h() {
-	int n = board.size(), m = board[0].size();
-	pair<int, int> best = make_pair(-1, -1);
+pair<int, vector<pair<int, int>>> state::h() {
+	pair<int, vector<pair<int, int>>> best = make_pair(-1, vector<pair<int, int>>());
 	for (int i = 0; i < k; ++i) {
 		vector<pair<int, int>> path = bfs(0, 0, i+1);
-		if ((int)path.size() > best.second) {
-			best = make_pair(i+1, path.size());
+		if (path.size() > best.second.size()) {
+			best = make_pair(i+1, path);
 		}
 		for (auto p: path)
 			b[p.first][p.second] = false;
 	}
-	return best.first;
+	return best;
 }

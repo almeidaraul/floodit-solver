@@ -10,7 +10,6 @@ int main() {
     cin >> b[i][j];
   //criando state inicial com bfs
   state s0(n, m, k, b);
-  s0.init();
   s0.solve();
   s0.printsolution();
 }

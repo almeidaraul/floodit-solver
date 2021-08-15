@@ -4,9 +4,9 @@
 #include <utility>
 
 struct state {
+  int n, m, k;
 	std::vector<std::vector<bool>> b;
 	std::vector<std::vector<int>> &board;
-  int n, m, k;
 	std::vector<int> history;
   int color, covered;
 
@@ -18,5 +18,5 @@ struct state {
   state (int n, int m, int k, std::vector<std::vector<int>> &board);
   void init();
 	std::vector<std::pair<int, int>> bfs(int sx, int sy, int c);
-  int h();
+	std::pair<int, std::vector<std::pair<int, int>>> h();
 };

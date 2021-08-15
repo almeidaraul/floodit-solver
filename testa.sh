@@ -1,5 +1,6 @@
-make fabiano
+make
 echo "ENTRADA PEQUENA"
+./aquarela < entradas/in1.txt > entradas/saida.txt
 cat entradas/in1.txt entradas/saida.txt | ./fabiano/verifica
 if [ "$?" -eq 0 ]
 	then
@@ -9,4 +10,4 @@ if [ "$?" -eq 0 ]
 fi
 
 echo "ENTRADA GRANDE"
-time ./main < entradas/100x100-20c.txt
+time ./aquarela < entradas/100x100-20c.txt
