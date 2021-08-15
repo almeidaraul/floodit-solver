@@ -1,20 +1,10 @@
-CC = g++
-CFLAGS = -Wall
-OBJ = main.o state.o
-DEPS = state.hpp
+CFLAGS = -Wall -O3
+
 all: main
-
-%.o: %.c $(DEPS)
-  $(CC) $(CFLAGS) -c -o $@ $<
-
-main: $(OBJ)
-  $(CC) -o $@ $^ $(CFLAGS)
-
+main: main.o state.o
+	g++ main.cpp state.cpp $(CFLAGS)
 exec: main
-  ./a.out < teste.in
-
+	time ./a.out < teste.in
+	time ./a.out < gigante.in
 clean:
 	@rm -f *.o
-
-purge: clean
-  @rm main
